@@ -18,20 +18,5 @@ async def ListOffTask(message: types.Message):
         text=result
     )
 
-#
-# @dp.message_handler(commands="upcomingtask")
-# async def Upcommintask(message: types.Message):
-#     await message.reply(
-#
-#     )
-
-
-# @dp.message_handler(commands='help')
-# async def help_cmd(message: types.Message):
-#     await message.answer(
-#         text="Our bot have some commands. you can use it:\n"
-#         f"{ListOffTask}\n"
-#         f"{Upcommintask}\n"
-#     )
 
 
