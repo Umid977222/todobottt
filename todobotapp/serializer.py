@@ -6,4 +6,4 @@ from rest_framework import serializers
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'task_name', 'description', 'completed']
+        fields = ['id', 'task_name', 'description', 'completed', 'starting_time', 'deadline']
