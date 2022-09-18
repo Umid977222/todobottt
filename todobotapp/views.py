@@ -34,6 +34,20 @@ class TaskViewSet(viewsets.ModelViewSet):
             serializer = TaskSerializer(tasks, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=True)
+    def deletetask(self, request, pk):
+        if request.method == 'GET':
+            task = Task.objects.filter(pk=pk)
+            task.delete()
+            return Response(status=status.HTTP_200_OK)
+
+    # @action(detail=True)
+    # def edit(self, request, pk):
+    #     if request.method == 'GET':
+    #         task = Task.objects.filter(pk=pk)
+    #         serializer = TaskSerializer(task, many=True)
+    #         task.save()
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
 
 #     def post(self, request):
 #         """"""

@@ -9,3 +9,4 @@ def get_inline():
     keybord.add(types.InlineKeyboardButton(text='delete', callback_data=cb.new('delete')),
                 types.InlineKeyboardButton(text='edit', callback_data=cb.new('edit'))
                 )
+    return keybord
