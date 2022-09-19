@@ -13,13 +13,11 @@ async def fetch(message: types.Message):
             for x in data:
                 task_name = x['task_name']
                 description = x['description']
-                completed1 = x['completed']
                 start = x['starting_time']
                 deadline = x['deadline']
                 count += 1
                 await message.reply(text=f'Task {count}: {task_name}'
                                          f'\nDescription: {description}'
-                                         f'\nCompleted: {completed1}'
                                          f'\nStarted_at: {start}'
                                          f'\nDeadline: {deadline}',
                                          reply_markup=get_inline()
@@ -30,38 +28,42 @@ async def completed(message: types.Message):
     async with aiohttp.ClientSession() as session:
         async with session.get(proxy2, auth=aiohttp.BasicAuth(user, password)) as response:
             data = await response.json()
-            count = 0
             for x in data:
                 task_name = x['task_name']
                 description = x['description']
                 start = x['starting_time']
                 deadline = x['deadline']
-                count += 1
-                await message.reply(text=f'Task {count}: {task_name}'
-                                         f'\nDescription: {description}'
-                                         f'\nCompleted: ✅✅✅'
-                                         f'\nStarted_at: {start}'
-                                         f'\nDeadline: {deadline}'
-                                    )
+                if x['completed']:
+                    await message.reply(text=f'Task: {task_name}'
+                                             f'\nDescription: {description}'
+                                             f'\nCompleted: ✅✅✅'
+                                             f'\nStarted_at: {start}'
+                                             f'\nDeadline: {deadline}',
+                                             reply_markup=get_inline()
+                                        )
+                else:
+                    await message.answer(text='you do not have completed tasks')
 
 
 async def uncompleted(message: types.Message):
     async with aiohttp.ClientSession() as session:
         async with session.get(proxy3, auth=aiohttp.BasicAuth(user, password)) as response:
             data = await response.json()
-            count = 0
             for x in data:
                 task_name = x['task_name']
                 description = x['description']
                 start = x['starting_time']
                 deadline = x['deadline']
-                count += 1
-                await message.reply(text=f'Task {count}: {task_name}'
-                                         f'\nDescription: {description}'
-                                         f'\nCompleted: ❌'
-                                         f'\nStarted_at: {start}'
-                                         f'\nDeadline: {deadline}'
-                                    )
+                if x['completed']:
+                    await message.answer(text='you do not have uncompleted tasks')
+                else:
+                    await message.reply(text=f'Task: {task_name}'
+                                             f'\nDescription: {description}'
+                                             f'\nCompleted: ❌'
+                                             f'\nStarted_at: {start}'
+                                             f'\nDeadline: {deadline}',
+                                             reply_markup=get_inline()
+                                        )
 
 
 async def delete1():
@@ -71,5 +73,20 @@ async def delete1():
             for x in data:
                 if x['task_name']:
                     id1 = x['id']
-                    url_delete = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/''deletetask''/'
-            await session.get(url_delete)
+                    url_delete = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+                    async with await session.delete(url_delete, auth=aiohttp.BasicAuth(user, password)) as res:
+                        return await res.text()
+
+
+async def changecomplete():
+    async with aiohttp.ClientSession() as session:
+        async with session.get(proxy, auth=aiohttp.BasicAuth(user, password)) as response:
+            data = await response.json()
+            for x in data:
+                if x['task_name']:
+                    id1 = x['id']
+                    url_delete = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+                    if not x['completed']:
+                        x['completed'] = True
+                        async with await session.put(url_delete, auth=aiohttp.BasicAuth(user, password), data=x) as res:
+                            return await res.json()

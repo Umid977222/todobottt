@@ -22,32 +22,31 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def completed(self, request):
         """function get_all to convert the data in the database to json format"""
-        if request.method == 'GET':
-            tasks = Task.objects.filter(completed=True)
-            serializer = TaskSerializer(tasks, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        tasks = Task.objects.filter(completed=True)
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False)
     def uncompleted(self, request):
-        if request.method == 'GET':
-            tasks = Task.objects.filter(completed=False)
-            serializer = TaskSerializer(tasks, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(detail=True)
-    def deletetask(self, request, pk):
-        if request.method == 'GET':
-            task = Task.objects.filter(pk=pk)
-            task.delete()
-            return Response(status=status.HTTP_200_OK)
+        tasks = Task.objects.filter(completed=False)
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # @action(detail=True)
-    # def edit(self, request, pk):
+    # def deletetask(self, request, pk):
     #     if request.method == 'GET':
     #         task = Task.objects.filter(pk=pk)
-    #         serializer = TaskSerializer(task, many=True)
-    #         task.save()
+    #         task.delete()
+    #         return Response(status=status.HTTP_200_OK)
+
+    # @action(detail=True)
+    # def change(self, request, pk):
+    #     result = Task.objects.get(pk=pk)
+    #     serializer = TaskSerializer(result, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status.HTTP_304_NOT_MODIFIED)
 
 #     def post(self, request):
 #         """"""
