@@ -54,42 +54,23 @@ async def cb_data(query: types.CallbackQuery, callback_data: dict):
 # async def start_time(message: types.Message):
 
 
-@dp.callback_query_handler(cb.filter(action=['Description']))
-async def get_description(message: types.Message, state: FSMContext):
-    await message.answer(text='Enter description: ')
-    await EditTask.description.set()
+@dp.callback_query_handler(cb.filter(action=['Task_name', 'Description', 'starting_time', 'Deadline']))
+async def call_updates(query: types.CallbackQuery, callback_data: dict):
+    action = callback_data.get('action')
+    if action == 'starting_time':
+        await query.message.answer(text='Enter start time of task')
+        await EditTask.starting_time.set()
+    await query.answer()
 
 
 @dp.message_handler(state=EditTask.starting_time)
-async def get_start_time(message: types.Message):
-    datepicker1 = Datepicker()
-    markup = datepicker1.start_calendar()
-    await message.answer(text='Enter start time:', reply_markup=markup)
-
-# @dp.callback_query_handler(cb.filter(action=['starting_time']))
-# async def set_start_time(query: types.CallbackQuery, state: FSMContext):
-
-
-    # await EditTask.starting_time.set()
-
-
-@dp.message_handler(state=EditTask.task_name)
-async def set_task_name(message: types.Message, state: FSMContext):
-    task_name = message.text
-    await state.update_data(task_name=task_name)
-
-
-@dp.message_handler(state=EditTask.description)
-async def set_description(message: types.Message, state: FSMContext):
-    description = message.text
-    await state.update_data(description=description)
-
-
-@dp.message_handler(state=EditTask.starting_time)
-async def set_description(message: types.Message, state: FSMContext):
-    starting_time = message.text
+async def get_starting_time(message: types.Message, state: FSMContext):
+    datetime = message.text.split(' ')
+    date = datetime[0].split('.')
+    time = datetime[1].split(':')
+    starting_time = f'{date[2]}-{date[1]}-{date[0]}' + f' {time[0]}:{time[1]}'
     await state.update_data(starting_time=starting_time)
-
+    await message.answer(starting_time)
 # def _get_datepicker_settings():
 #     return DatepickerSettings() #some settings
 #
