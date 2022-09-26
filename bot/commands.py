@@ -1,9 +1,12 @@
+import aiohttp
 from aiogram.dispatcher import FSMContext
+
+from .config import user, password
 from .control import dp
 from aiogram.dispatcher.filters import CommandStart
 from aiogram import types
-from .getting_data import fetch, completed, uncompleted, tasks
-from .inline import cb
+from .getting_data import fetch, completed, uncompleted, set_data
+from .inline import cb, get_inline, get_edit_buttons
 from .models import EditTask
 
 
@@ -33,19 +36,46 @@ async def UncompletedTask(message: types.Message):
 async def cb_data(query: types.CallbackQuery, callback_data: dict):
     action = callback_data.get('action')
     if action == 'detail':
-        result = await tasks()
-        if result:
-            await query.message.edit_text(text=f'1: {result}')
+        result = await set_data()
+        for x in result:
+            spl = query.message.text.splitlines()
+            sl = spl[1]
+            if sl[9:] == str(x['id']):
+                task_name = x['task_name']
+                description = x['description']
+                start = x['starting_time']
+                deadline = x['deadline']
+                id1 = x['id']
+                url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+                await query.message.edit_text(text=f'Task name: {task_name}'
+                                                   f'\nTask ID: {id1}'
+                                                   f'\nDescription: {description}'
+                                                   f'\nStarted_at: {start}'
+                                                   f'\nDeadline: {deadline}'
+                                                   f'\nUrl: {url_detail}',
+                                                   reply_markup=get_inline()
+                                              )
 
 
-# @dp.callback_query_handler(cb.filter(action=['delete', 'edit', 'completed']))
-# async def cb_data(query: types.CallbackQuery, callback_data: dict):
-#     action = callback_data.get('action')
-#     if action == 'delete':
-#         result = await delete1()
-#         if result == '':
-#             await query.message.edit_text(text='Accept deleted')
-#         else:
+@dp.callback_query_handler(cb.filter(action=['delete', 'edit', 'completed']))
+async def cb_data(query: types.CallbackQuery, callback_data: dict):
+    action = callback_data.get('action')
+    if action == 'delete':
+        result = await set_data()
+        for x in result:
+            spl = query.message.text.splitlines()
+            sl = spl[1]
+            if sl[9:] == str(x['id']):
+                id1 = x['id']
+                url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+                async with aiohttp.ClientSession() as session:
+                    async with await session.delete(url_detail, auth=aiohttp.BasicAuth(user, password)) as res:
+                        await query.message.edit_text(f'Accepted deleted')
+    elif action == 'edit':
+        await query.message.edit_text(text='choose',
+                                      reply_markup=get_edit_buttons())
+
+# #         else:
 #             await query.message.edit_text(text=f'{result}')
 #     elif action == 'edit':
 #         await query.message.answer(text='Which one do you want to change of task',
@@ -60,7 +90,7 @@ async def cb_data(query: types.CallbackQuery, callback_data: dict):
 # @dp.callback_query_handler(cb.filter(action=['Task name']))
 # async def start_time(message: types.Message):
 
-
+#
 @dp.callback_query_handler(cb.filter(action=['Task_name', 'Description', 'starting_time', 'Deadline']))
 async def call_updates(query: types.CallbackQuery, callback_data: dict):
     action = callback_data.get('action')

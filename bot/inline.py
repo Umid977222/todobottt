@@ -7,15 +7,14 @@ cb = CallbackData('post', 'action')
 def get_inline():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     # buttons = ['delete', 'edit']
-    keyboard.add(types.InlineKeyboardButton(text='delete', callback_data=cb.new('delete')),
-                 types.InlineKeyboardButton(text='edit', callback_data=cb.new('edit')),
-                 types.InlineKeyboardButton(text='✅', callback_data=cb.new('completed')))
+    keyboard.add(types.InlineKeyboardButton(text='🗑', callback_data=cb.new('delete')),
+                 types.InlineKeyboardButton(text='📝', callback_data=cb.new('edit')))
     return keyboard
 
 
 def get_detail():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(types.InlineKeyboardButton(text='detail', callback_data=cb.new('detail')))
+    keyboard.add(types.InlineKeyboardButton(text='⚙️⚡️⚙️', callback_data=cb.new('detail')))
     return keyboard
 
 

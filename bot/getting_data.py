@@ -9,20 +9,11 @@ async def fetch(message: types.Message):
     async with aiohttp.ClientSession() as session:
         async with session.get(proxy, auth=aiohttp.BasicAuth(user, password)) as response:
             data = await response.json()
-            count = 0
             for x in data:
-                task_name = x['task_name']
-                description = x['description']
-                start = x['starting_time']
-                deadline = x['deadline']
                 id1 = x['id']
-                count += 1
-                url_get = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
-                await message.reply(text=f'Task {count}: {task_name}'
-                                         f'\nDescription: {description}'
-                                         f'\nStarted_at: {start}'
-                                         f'\nDeadline: {deadline}'
-                                         f'\nUrl: {url_get}',
+                task_name = x['task_name']
+                await message.reply(text=f'Task name: {task_name}'
+                                         f'\nTask ID: {id1}',
                                          reply_markup=get_detail()
                                     )
 
@@ -69,16 +60,10 @@ async def uncompleted(message: types.Message):
                                         )
 
 
-async def tasks():
+async def set_data():
     async with aiohttp.ClientSession() as session:
         async with session.get(proxy, auth=aiohttp.BasicAuth(user, password)) as response:
-            data = await response.json()
-            for x in data:
-                if x['task_name']:
-                    id1 = x['id']
-                    url_get = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
-                    async with await session.get(url_get, auth=aiohttp.BasicAuth(user, password)) as res:
-                        return await res.text()
+            return await response.json()
 
 
 async def delete1():
