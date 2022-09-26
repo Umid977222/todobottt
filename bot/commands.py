@@ -31,6 +31,27 @@ async def UncompletedTask(message: types.Message):
     await uncompleted(message)
 
 
+@dp.callback_query_handler(cb.filter(action=['detail']))
+async def cb_detail(query: types.CallbackQuery, callback_data: dict):
+    action = callback_data.get('action')
+    if action == 'detail':
+        result = await send_data()
+        for x in result:
+            if query.message.text[11:] == x['task_name']:
+                id1 = x['id']
+                url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+                task_name = x['task_name']
+                description = x['description']
+                start = x['starting_time']
+                deadline = x['deadline']
+                await query.message.edit_text(text=f'Task: {task_name}'
+                                                   f'\nDescription: {description}'
+                                                   f'\nStarted_at: {start}'
+                                                   f'\nDeadline: {deadline}'
+                                                   f'\nUrl: {url_detail}'
+                                    )
+
+
 @dp.callback_query_handler(cb.filter(action=['delete', 'edit', 'completed']))
 async def cb_data(query: types.CallbackQuery, callback_data: dict):
     action = callback_data.get('action')

@@ -2,7 +2,7 @@ import aiohttp
 from aiogram import types
 
 from .config import proxy, password, user, proxy3, proxy2
-from .inline import get_inline
+from .inline import get_inline, get_detail
 
 
 async def fetch(message: types.Message):
@@ -15,12 +15,19 @@ async def fetch(message: types.Message):
                 description = x['description']
                 start = x['starting_time']
                 deadline = x['deadline']
+                id1 = x['id']
                 count += 1
-                await message.reply(text=f'Task {count}: {task_name}'
-                                         f'\nDescription: {description}'
-                                         f'\nStarted_at: {start}'
-                                         f'\nDeadline: {deadline}',
-                                         reply_markup=get_inline()
+                url_get = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+                if message == 'action':
+                    await message.reply(text=f'Task {count}: {task_name}'
+                                             f'\nDescription: {description}'
+                                             f'\nStarted_at: {start}'
+                                             f'\nDeadline: {deadline}'
+                                             f'\nUrl: {url_get}'
+                                        )
+
+                await message.reply(text=f'Task: {task_name}',
+                                    reply_markup=get_detail()
                                     )
 
 
@@ -70,8 +77,8 @@ async def delete1():
     async with aiohttp.ClientSession() as session:
         async with session.get(proxy, auth=aiohttp.BasicAuth(user, password)) as response:
             data = await response.json()
-            for x in data:
-                if x['task_name']:
+            for x in ls:
+                if data['task_name'] == x:
                     id1 = x['id']
                     url_delete = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
                     async with await session.delete(url_delete, auth=aiohttp.BasicAuth(user, password)) as res:

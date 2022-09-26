@@ -14,6 +14,12 @@ def get_inline():
     return keybord
 
 
+def get_detail():
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(types.InlineKeyboardButton(text='detail', callback_data=cb.new('detail')))
+    return keyboard
+
+
 def get_edit_buttons():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(types.InlineKeyboardButton(text='Task name', callback_data=cb.new('Task name')),
