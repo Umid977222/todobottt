@@ -2,7 +2,7 @@ import aiohttp
 from aiogram import types
 
 from .config import proxy, password, user, proxy3, proxy2
-from .inline import get_inline
+from .inline import get_detail
 
 
 async def fetch(message: types.Message):
@@ -15,12 +15,15 @@ async def fetch(message: types.Message):
                 description = x['description']
                 start = x['starting_time']
                 deadline = x['deadline']
+                id1 = x['id']
                 count += 1
+                url_get = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
                 await message.reply(text=f'Task {count}: {task_name}'
                                          f'\nDescription: {description}'
                                          f'\nStarted_at: {start}'
-                                         f'\nDeadline: {deadline}',
-                                         reply_markup=get_inline()
+                                         f'\nDeadline: {deadline}'
+                                         f'\nUrl: {url_get}',
+                                         reply_markup=get_detail()
                                     )
 
 
@@ -39,7 +42,7 @@ async def completed(message: types.Message):
                                              f'\nCompleted: ✅✅✅'
                                              f'\nStarted_at: {start}'
                                              f'\nDeadline: {deadline}',
-                                             reply_markup=get_inline()
+                                             reply_markup=get_detail()
                                         )
                 else:
                     await message.answer(text='you do not have completed tasks')
@@ -62,8 +65,20 @@ async def uncompleted(message: types.Message):
                                              f'\nCompleted: ❌'
                                              f'\nStarted_at: {start}'
                                              f'\nDeadline: {deadline}',
-                                             reply_markup=get_inline()
+                                             reply_markup=get_detail()
                                         )
+
+
+async def tasks():
+    async with aiohttp.ClientSession() as session:
+        async with session.get(proxy, auth=aiohttp.BasicAuth(user, password)) as response:
+            data = await response.json()
+            for x in data:
+                if x['task_name']:
+                    id1 = x['id']
+                    url_get = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+                    async with await session.get(url_get, auth=aiohttp.BasicAuth(user, password)) as res:
+                        return await res.text()
 
 
 async def delete1():
@@ -78,7 +93,7 @@ async def delete1():
                         return await res.text()
 
 
-async def changecomplete():
+async def ChangeComplete():
     async with aiohttp.ClientSession() as session:
         async with session.get(proxy, auth=aiohttp.BasicAuth(user, password)) as response:
             data = await response.json()

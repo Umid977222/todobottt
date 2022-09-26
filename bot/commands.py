@@ -1,11 +1,9 @@
 from aiogram.dispatcher import FSMContext
-from aiogram_datepicker import Datepicker, DatepickerSettings, datepicker
 from .control import dp
 from aiogram.dispatcher.filters import CommandStart
 from aiogram import types
-from .getting_data import fetch, completed, uncompleted, delete1, changecomplete
-from .inline import cb, get_edit_buttons
-from .keybords import get_keyboard
+from .getting_data import fetch, completed, uncompleted, tasks
+from .inline import cb
 from .models import EditTask
 
 
@@ -31,23 +29,32 @@ async def UncompletedTask(message: types.Message):
     await uncompleted(message)
 
 
-@dp.callback_query_handler(cb.filter(action=['delete', 'edit', 'completed']))
+@dp.callback_query_handler(cb.filter(action=['detail']))
 async def cb_data(query: types.CallbackQuery, callback_data: dict):
     action = callback_data.get('action')
-    if action == 'delete':
-        result = await delete1()
-        if result == '':
-            await query.message.edit_text(text='Accept deleted')
-        else:
-            await query.message.edit_text(text=f'{result}')
-    elif action == 'edit':
-        await query.message.answer(text='Which one do you want to change of task',
-                                   reply_markup=get_edit_buttons())
-    elif action == 'completed':
-        data = await changecomplete()
-        if data:
-            await query.answer(text="changed")
-    await query.answer()
+    if action == 'detail':
+        result = await tasks()
+        if result:
+            await query.message.edit_text(text=f'1: {result}')
+
+
+# @dp.callback_query_handler(cb.filter(action=['delete', 'edit', 'completed']))
+# async def cb_data(query: types.CallbackQuery, callback_data: dict):
+#     action = callback_data.get('action')
+#     if action == 'delete':
+#         result = await delete1()
+#         if result == '':
+#             await query.message.edit_text(text='Accept deleted')
+#         else:
+#             await query.message.edit_text(text=f'{result}')
+#     elif action == 'edit':
+#         await query.message.answer(text='Which one do you want to change of task',
+#                                    reply_markup=get_edit_buttons())
+#     elif action == 'completed':
+#         data = await changecomplete()
+#         if data:
+#             await query.answer(text="changed")
+#     await query.answer()
 
 
 # @dp.callback_query_handler(cb.filter(action=['Task name']))
@@ -88,7 +95,7 @@ async def get_starting_time(message: types.Message, state: FSMContext):
 #     datepicker = Datepicker(_get_datepicker_settings())
 #
 #     date = await datepicker.process(callback_query, callback_data)
-#     if date:
+#     if :
 #         await callback_query.message.answer(date.strftime('%d/%m/%Y'))
 #
 #     await callback_query.answer()
@@ -107,5 +114,3 @@ async def get_starting_time(message: types.Message, state: FSMContext):
 #         f"{ListOffTask}\n"
 #         f"{Upcommintask}\n"
 #     )
-
-

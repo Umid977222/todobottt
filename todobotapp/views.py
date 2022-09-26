@@ -1,16 +1,8 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status, viewsets, permissions, renderers
+from rest_framework import status, viewsets, permissions
 from .models import Task
 from .serializer import TaskSerializer
-# Create your views here.
-""" /listoftask
- /addtask = create task = post
- /removetask = delete
- /updatetask  = put
- /donetask = Task.objects.filter(completed == TRUE)
- /upcommingtask = Task.objects.filter(completed == FALSE)
- """
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -32,23 +24,49 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    # def task1(self, request, pk):
+    #     tasks = Task.objects.get(pk=pk)
+    #     serializer = TaskSerializer(tasks)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # @action(detail=False)
+    # def get_object(self, pk):
+    #     try:
+    #         return Task.objects.get(pk=pk)
+    #     except Task.DoesNotExist:
+    #         raise status.HTTP_404_NOT_FOUND
+    #
+    # def get(self, request, pk, format=None):
+    #     snippet = self.get_object(pk)
+    #     serializer = TaskSerializer(snippet)
+    #     return Response(serializer.data)
+    # @action(detail=False)
+    # def get_one1(self, request, *args, **kwargs):
+    #     pk = self.kwargs.get('pk')
+    #     task = get_object_or_404(Task, pk=pk)
+    #     serializer = TaskSerializer(task)
+    #     return Response(serializer.data)
+
     # @action(detail=True)
-    # def deletetask(self, request, pk):
+    # def delete(self, request, pk):
     #     if request.method == 'GET':
     #         task = Task.objects.filter(pk=pk)
     #         task.delete()
     #         return Response(status=status.HTTP_200_OK)
 
-    # @action(detail=True)
-    # def change(self, request, pk):
-    #     result = Task.objects.get(pk=pk)
-    #     serializer = TaskSerializer(result, data=request.data)
+    # def change(self, request, *args, **kwargs):
+    #     pk = self.kwargs.get('pk')
+    #     save_allowance = get_object_or_404(Task.objects.all(), pk=pk)
+    #     data = request.data.get('task_name')
+    #     serializer = TaskSerializer(instance=save_allowance, data=data, partial=True)
+    #
     #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status.HTTP_304_NOT_MODIFIED)
+    #         allowance_saved = serializer.save()
+    #         return Response({"success": "Allowance '{}' updated successfully".format(allowance_saved.AllowID)})
+    #     else:
+    #         return Response({"fail": "'{}'".format(serializer.errors)})
 
-#     def post(self, request):
+        #     def post(self, request):
 #         """"""
 #         serializer = TaskSerializer(request=request.data)
 #         if serializer.is_valid():
@@ -84,6 +102,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #
 #     def delete(self, request, pk, format=None):
-#         task = self.get_oject(pk)
+#         task = self.get(pk)
 #         task.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
