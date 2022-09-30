@@ -4,7 +4,7 @@ from aiogram.utils.callback_data import CallbackData
 cb = CallbackData('post', 'action')
 
 
-def get_inline():
+def get_completed():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     # buttons = ['delete', 'edit']
     keyboard.add(types.InlineKeyboardButton(text='delete', callback_data=cb.new('delete')),
@@ -13,15 +13,29 @@ def get_inline():
     return keyboard
 
 
-def get_detail():
+def get_inline():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(types.InlineKeyboardButton(text='detail', callback_data=cb.new('detail')))
+    # buttons = ['delete', 'edit']
+    keyboard.add(types.InlineKeyboardButton(text='delete', callback_data=cb.new('delete')),
+                 types.InlineKeyboardButton(text='edit', callback_data=cb.new('edit')))
     return keyboard
 
 
 def get_detail():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(types.InlineKeyboardButton(text='detail', callback_data=cb.new('detail')))
+    return keyboard
+
+
+def get_detail1():
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(types.InlineKeyboardButton(text='detail', callback_data=cb.new('detail1')))
+    return keyboard
+
+
+def get_detail2():
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(types.InlineKeyboardButton(text='detail', callback_data=cb.new('detail2')))
     return keyboard
 
 
