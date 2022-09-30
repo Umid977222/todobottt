@@ -34,6 +34,7 @@ async def UncompletedTask(message: types.Message):
 
 @dp.callback_query_handler(cb.filter(action=['detail']))
 async def cb_data(query: types.CallbackQuery, callback_data: dict):
+    global id1
     action = callback_data.get('action')
     if action == 'detail':
         result = await set_data()
@@ -63,17 +64,14 @@ async def cb_data(query: types.CallbackQuery, callback_data: dict):
     if action == 'delete':
         result = await set_data()
         for x in result:
-            spl = query.message.text.splitlines()
-            sl = spl[1]
-            if sl[9:] == str(x['id']):
+            if query.message.text.splitlines()[1:][9:] == str(x['id']):
                 id1 = x['id']
                 url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
                 async with aiohttp.ClientSession() as session:
                     async with await session.delete(url_detail, auth=aiohttp.BasicAuth(user, password)) as res:
                         await query.message.edit_text(f'Accepted deleted')
     elif action == 'edit':
-        await query.message.edit_text(text='choose',
-                                      reply_markup=get_edit_buttons())
+        await query.message.edit_reply_markup(get_edit_buttons())
 
 # #         else:
 #             await query.message.edit_text(text=f'{result}')
@@ -94,10 +92,44 @@ async def cb_data(query: types.CallbackQuery, callback_data: dict):
 @dp.callback_query_handler(cb.filter(action=['Task_name', 'Description', 'starting_time', 'Deadline']))
 async def call_updates(query: types.CallbackQuery, callback_data: dict):
     action = callback_data.get('action')
-    if action == 'starting_time':
+    if action == 'Task_name':
+        await query.message.answer(text='Enter new task name: ')
+        await EditTask.task_name.set()
+    if action == 'Description':
+        await query.message.answer(text='Enter new description: ')
+        await EditTask.description.set()
+    elif action == 'starting_time':
         await query.message.answer(text='Enter start time of task')
         await EditTask.starting_time.set()
     await query.answer()
+
+
+@dp.message_handler(state=EditTask.task_name)
+async def get_task_name(message: types.Message, state: FSMContext):
+    task_name = message.text
+    await state.update_data(task_name=task_name)
+    result = await set_data()
+    for x in result:
+        if id1 == ['id']:
+            x["task_name"] = task_name
+            url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+            async with aiohttp.ClientSession() as session:
+                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password)) as res:
+                    await message.answer(f'Accepted new task name {x["task_name"]}')
+
+
+@dp.message_handler(state=EditTask.description)
+async def get_description(message: types.Message, state: FSMContext):
+    description = message.text
+    await state.update_data(description=description)
+    result = await set_data()
+    for x in result:
+        if id1 == ['id']:
+            x["description"] = description
+            url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+            async with aiohttp.ClientSession() as session:
+                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password)) as res:
+                    await message.answer(f'Accepted new task name {x["description"]}')
 
 
 @dp.message_handler(state=EditTask.starting_time)
@@ -107,7 +139,15 @@ async def get_starting_time(message: types.Message, state: FSMContext):
     time = datetime[1].split(':')
     starting_time = f'{date[2]}-{date[1]}-{date[0]}' + f' {time[0]}:{time[1]}'
     await state.update_data(starting_time=starting_time)
-    await message.answer(starting_time)
+    result = await set_data()
+    for x in result:
+        if id1 == ['id']:
+            x["starting_time"] = starting_time
+            url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
+            async with aiohttp.ClientSession() as session:
+                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password)) as res:
+                    await message.answer(f'Task name: {x["task_name"]}'
+                                         f'\nAccepted new start time {x["starting_time"]}')
 # def _get_datepicker_settings():
 #     return DatepickerSettings() #some settings
 #
