@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions, renderers
@@ -32,10 +34,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True)
-    def deletetask(self, request, pk):
-        if request.method == 'GET':
-            task = Task.objects.filter(pk=pk)
+    @action(detail=False)
+    def daily(self, request):
+        if Task.objects.filter(completed=False):
+            task = Task.objects.filter(deadline_gt=datetime.datetime.today())
             serializer = TaskSerializer(task)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
