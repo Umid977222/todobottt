@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'todobotapp',
     'rest_framework',
+    'knox',
 ]
 
 MIDDLEWARE = [

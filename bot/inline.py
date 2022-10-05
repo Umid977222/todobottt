@@ -50,10 +50,10 @@ def get_edit_buttons():
                  )
     return keyboard
 
-def calendar():
-    start_kb = types.InlineKeyboardMarkup(row_width=2)
-    start_kb.add(
-                 types.InlineKeyboardButton(text='Navigation Calendar', callback_data=cb.new('Navigation Calendar')),
-                 types.InlineKeyboardButton(text='Dialog Calendar', callback_data=cb.new('Dialog Calendar'))
-                 )
-    return start_kb
+# def calendar():
+#     start_kb = types.InlineKeyboardMarkup(row_width=2)
+#     start_kb.add(
+#                  types.InlineKeyboardButton(text='Navigation Calendar', callback_data=cb.new('Navigation Calendar')),
+#                  types.InlineKeyboardButton(text='Dialog Calendar', callback_data=cb.new('Dialog Calendar'))
+#                  )
+#     return start_kb

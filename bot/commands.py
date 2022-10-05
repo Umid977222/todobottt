@@ -8,7 +8,7 @@ from aiogram import types
 from .getting_data import fetch, completed, uncompleted, set_data
 from .inline import cb, get_inline, get_edit_buttons, get_completed, calendar
 from .models import EditTask
-from todobottt.bot.aiogram_calendar import simple_cal_callback, SimpleCalendar, dialog_cal_callback, DialogCalendar
+# from todobottt.bot.aiogram_calendar import simple_cal_callback, SimpleCalendar, dialog_cal_callback, DialogCalendar
 
 global id1
 
@@ -35,40 +35,40 @@ async def UncompletedTask(message: types.Message):
     await uncompleted(message)
 
 
-@dp.message_handler(commands="calendar")
-async def UncompletedTask(message: types.Message):
-    await message.answer(f'calendar', reply_markup=calendar())
-
-
-@dp.callback_query_handler(cb.filter(action=['Navigation Calendar']))
-async def cb_data(query: types.CallbackQuery, callback_data: dict):
-    action = callback_data.get('action')
-    if action == 'Navigation Calendar':
-        await query.message.edit_text("Please select a date: ", reply_markup=await SimpleCalendar().start_calendar())
-
-
-@dp.callback_query_handler(simple_cal_callback.filter())
-async def process_simple_calendar(query: types.CallbackQuery, callback_data: dict):
-    selected, date = await SimpleCalendar().process_selection(query, callback_data)
-    if selected:
-        await query.message.edit_text(f'{date.strftime("%d/%m/%Y")}')
-
-
-@dp.callback_query_handler(cb.filter(action=['Dialog Calendar']))
-async def cb_data2(query: types.CallbackQuery, callback_data: dict):
-    action = callback_data.get('action')
-    if action == 'Dialog Calendar':
-        await query.message.edit_text("Please select a date: ", reply_markup=await DialogCalendar().start_calendar())
-
-
-@dp.callback_query_handler(dialog_cal_callback.filter())
-async def process_dialog_calendar(query: types.CallbackQuery, callback_data: dict):
-    selected, date = await DialogCalendar().process_selection(query, callback_data)
-    if selected:
-        await query.message.answer(
-            f'You selected {date.strftime("%d/%m/%Y")}'
-        )
-
+# @dp.message_handler(commands="calendar")
+# async def UncompletedTask(message: types.Message):
+#     await message.answer(f'calendar', reply_markup=calendar())
+#
+#
+# @dp.callback_query_handler(cb.filter(action=['Navigation Calendar']))
+# async def cb_data(query: types.CallbackQuery, callback_data: dict):
+#     action = callback_data.get('action')
+#     if action == 'Navigation Calendar':
+#         await query.message.edit_text("Please select a date: ", reply_markup=await SimpleCalendar().start_calendar())
+#
+#
+# @dp.callback_query_handler(simple_cal_callback.filter())
+# async def process_simple_calendar(query: types.CallbackQuery, callback_data: dict):
+#     selected, date = await SimpleCalendar().process_selection(query, callback_data)
+#     if selected:
+#         await query.message.edit_text(f'{date.strftime("%d/%m/%Y")}')
+#
+#
+# @dp.callback_query_handler(cb.filter(action=['Dialog Calendar']))
+# async def cb_data2(query: types.CallbackQuery, callback_data: dict):
+#     action = callback_data.get('action')
+#     if action == 'Dialog Calendar':
+#         await query.message.edit_text("Please select a date: ", reply_markup=await DialogCalendar().start_calendar())
+#
+#
+# @dp.callback_query_handler(dialog_cal_callback.filter())
+# async def process_dialog_calendar(query: types.CallbackQuery, callback_data: dict):
+#     selected, date = await DialogCalendar().process_selection(query, callback_data)
+#     if selected:
+#         await query.message.answer(
+#             f'You selected {date.strftime("%d/%m/%Y")}'
+#         )
+#
 
 
 @dp.callback_query_handler(cb.filter(action=['detail']))
