@@ -20,6 +20,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest-framework')),
     path('register/', views.RegistrationAPI.as_view()),
-    path('login/', views.LoginAPI.as_view()),
-    path('user/', views.UserAPI.as_view()),
+    # path('login/', views.LoginAPI.as_view()),
+    # path('user/', views.UserAPI.as_view()),
 ]

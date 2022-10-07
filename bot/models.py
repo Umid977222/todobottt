@@ -8,3 +8,9 @@ class EditTask(StatesGroup):
     starting_time = State()
     deadline = State()
 
+
+class Auth(StatesGroup):
+    username = State()
+    email = State()
+    password = State()
+

@@ -1,28 +1,75 @@
+import re
 import aiohttp
 from aiogram.dispatcher import FSMContext
-
-from .config import user, password
+from .config import user, password, url_reg
 from .control import dp
 from aiogram.dispatcher.filters import CommandStart
 from aiogram import types
 from .getting_data import fetch, completed, uncompleted, set_data
-from .inline import cb, get_inline, get_edit_buttons, get_completed, calendar
-from .models import EditTask
+from .inline import cb, get_inline, get_edit_buttons, get_completed
+from .models import EditTask, Auth
 # from todobottt.bot.aiogram_calendar import simple_cal_callback, SimpleCalendar, dialog_cal_callback, DialogCalendar
 
 global id1
+user_info = {}
 
 
-@dp.message_handler(CommandStart())
+@dp.message_handler(commands="start")
 async def on_start(message: types.Message):
-    await message.reply(
-        text=f"Hi bot {message.from_user.full_name}"
+    await message.answer(
+        text=f"Hi! Welcome to our bot {message.from_user.first_name}"
+             f"\nFor user registration, please press /auth link"
     )
+
+
+@dp.message_handler(commands='auth')
+async def get_info(message: types.Message):
+    await message.answer("Enter your username:")
+    await Auth.username.set()
+
+
+@dp.message_handler(state=Auth.username)
+async def get_task_name(message: types.Message, state: FSMContext):
+    username = message.text
+    await state.update_data(username=username)
+    user_info['username'] = username
+    await message.answer(f"Enter your email for registration:")
+    await Auth.email.set()
+
+
+@dp.message_handler(state=Auth.email)
+async def get_task_name(message: types.Message, state: FSMContext):
+    email = message.text
+    await state.update_data(email=email)
+    await message.answer("Enter password for registration(example: abcd123456  "
+                         "\n- password must be included alphabet and numbers at least 8 symbols):")
+    await Auth.password.set()
+
+
+@dp.message_handler(state=Auth.password)
+async def get_task_name(message: types.Message, state: FSMContext):
+    password = message.text
+    if re.fullmatch(r'[A-Za-z0-9@#$%^&+=]{8,}', password):
+        result = await state.update_data(password=password)
+        user_info['password'] = result
+        await message.answer("All is done")
+    else:
+        await message.answer("Please re-enter")
+        await Auth.password.set()
+
+    await state.finish()
+    await message.reply(f'{register()}')
+
+
+async def register():
+    async with aiohttp.request(method='POST', url=url_reg, data=user_info) as res:
+        return res.json()
 
 
 @dp.message_handler(commands="listoftask")
 async def ListOffTask(message: types.Message):
     await fetch(message)
+
 
 
 @dp.message_handler(commands="completed")

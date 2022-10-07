@@ -1,7 +1,6 @@
 import aiohttp
 from aiogram import types
-
-from .config import proxy, password, user, proxy3, proxy2
+from .config import proxy, password, user, proxy3, proxy2, url_reg
 from .inline import get_detail, get_detail2, get_detail1
 
 

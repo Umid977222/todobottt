@@ -51,7 +51,9 @@ class TaskViewSet(viewsets.ModelViewSet):
 class RegistrationAPI(generics.GenericAPIView):
     queryset = Task.objects.all()
     serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny, ]
 
+    @action(methods='POST', detail=False)
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -62,27 +64,27 @@ class RegistrationAPI(generics.GenericAPIView):
         })
 
 
-class LoginAPI(generics.GenericAPIView):
-    queryset = Task.objects.all()
-    serializer_class = LoginUserSerializer
-    permission_classes = [permissions.IsAuthenticated, ]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": AuthToken.objects.create(user)[1]
-        })
-
-
-class UserAPI(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated, ]
-    serializer_class = UserSerializer
-
-    def get_object(self):
-        return self.request.user
+# class LoginAPI(generics.GenericAPIView):
+#     queryset = Task.objects.all()
+#     serializer_class = LoginUserSerializer
+#     permission_classes = [permissions.IsAuthenticated, ]
+#
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.validated_data
+#         return Response({
+#             "user": UserSerializer(user, context=self.get_serializer_context()).data,
+#             "token": AuthToken.objects.create(user)[1]
+#         })
+#
+#
+# class UserAPI(generics.RetrieveAPIView):
+#     permission_classes = [permissions.IsAuthenticated, ]
+#     serializer_class = UserSerializer
+#
+#     def get_object(self):
+#         return self.request.user
     # @action(detail=True)
     # def change(self, request, pk):
     #     result = Task.objects.get(pk=pk)
