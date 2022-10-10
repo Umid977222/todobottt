@@ -40,6 +40,7 @@ async def get_task_name(message: types.Message, state: FSMContext):
 @dp.message_handler(state=Auth.email)
 async def get_task_name(message: types.Message, state: FSMContext):
     email = message.text
+    user_info['email'] = email
     await state.update_data(email=email)
     await message.answer("Enter password for registration(example: abcd123456  "
                          "\n- password must be included alphabet and numbers at least 8 symbols):")
@@ -48,23 +49,24 @@ async def get_task_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Auth.password)
 async def get_task_name(message: types.Message, state: FSMContext):
-    password = message.text
-    if re.fullmatch(r'[A-Za-z0-9@#$%^&+=]{8,}', password):
-        result = await state.update_data(password=password)
-        user_info['password'] = result
+    password1 = message.text
+    if re.fullmatch(r'[A-Za-z0-9@#$%^&+=]{8,}', password1):
+        result = await state.update_data(password=password1)
+        user_info['password'] = password1
         await message.answer("All is done")
     else:
         await message.answer("Please re-enter")
         await Auth.password.set()
 
     await state.finish()
-    await message.reply(f'{register()}')
+    await register(message)
 
 
-async def register():
+async def register(message: types.Message):
     async with aiohttp.request(method='POST', url=url_reg, data=user_info) as res:
-        return res.json()
+        await message.answer(f'{res.text()}')
 
+# request(method='POST', url=url_reg, data=user_info) as res
 
 @dp.message_handler(commands="listoftask")
 async def ListOffTask(message: types.Message):

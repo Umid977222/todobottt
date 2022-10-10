@@ -1,5 +1,5 @@
 import datetime
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from knox.models import AuthToken
 from rest_framework import permissions, generics
 from knox.views import LoginView as KnoxLoginView
@@ -25,7 +25,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     """get_all  and post functions"""
     queryset = Task.objects.all().order_by('-created_at')
     serializer_class = TaskSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.DjangoModelPermissions]
 
     @action(detail=False)
     def completed(self, request):
@@ -51,32 +51,42 @@ class TaskViewSet(viewsets.ModelViewSet):
 class RegistrationAPI(generics.GenericAPIView):
     queryset = Task.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny, ]
+    permission_classes = [permissions.AllowAny,]
 
-    @action(methods='POST', detail=False)
+    # @action(methods='POST', detail=False)
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        if user is not None:
+            if user.is_active:
+                login(request, user)
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": AuthToken.objects.create(user)[1]
         })
+        #
+        # if new_user is not None:
+        #     if new_user.is_active:
+        #         login(request, new_user)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+"""
+UserSerializer(user, context=self.get_serializer_context()).data,
+"""
+class LoginAPI(generics.GenericAPIView):
+    queryset = Task.objects.all()
+    serializer_class = LoginUserSerializer
+    permission_classes = [permissions.IsAuthenticated, ]
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        return Response({
+            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "token": self.a
 
-# class LoginAPI(generics.GenericAPIView):
-#     queryset = Task.objects.all()
-#     serializer_class = LoginUserSerializer
-#     permission_classes = [permissions.IsAuthenticated, ]
-#
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data
-#         return Response({
-#             "user": UserSerializer(user, context=self.get_serializer_context()).data,
-#             "token": AuthToken.objects.create(user)[1]
-#         })
+        })
 #
 #
 # class UserAPI(generics.RetrieveAPIView):

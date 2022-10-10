@@ -15,3 +15,10 @@ class Task(models.Model):
 
     def __str__(self):
         return f'{self.task_name}'
+
+# def upload_location(filename):
+#   output = filename.split.('.')[-1]
+#   return f'{filename}{datetime.now()}.{output}'
+
+# class Fileupload(models.Model):
+#   img = models.ImageField(upload_to=upload_location)
