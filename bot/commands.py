@@ -1,16 +1,16 @@
 import re
 import aiohttp
 from aiogram.dispatcher import FSMContext
-from .config import user, password, url_reg
-from .control import dp
-from aiogram.dispatcher.filters import CommandStart
 from aiogram import types
+
+from .config import user_data1
 from .getting_data import fetch, completed, uncompleted, set_data
 from .inline import cb, get_inline, get_edit_buttons, get_completed
 from .models import EditTask, Auth
+from ..main import dp
+
 # from todobottt.bot.aiogram_calendar import simple_cal_callback, SimpleCalendar, dialog_cal_callback, DialogCalendar
 
-global id1
 user_info = {}
 
 
@@ -40,18 +40,23 @@ async def get_task_name(message: types.Message, state: FSMContext):
 @dp.message_handler(state=Auth.email)
 async def get_task_name(message: types.Message, state: FSMContext):
     email = message.text
+    rx = re.compile(r'[A-Za-z0-9]+[.-_]*[A-Za-z0-9]+@[A-Za-z0-9]+(\.[A-Z|a-z]{2,})+')
     user_info['email'] = email
-    await state.update_data(email=email)
-    await message.answer("Enter password for registration(example: abcd123456  "
-                         "\n- password must be included alphabet and numbers at least 8 symbols):")
-    await Auth.password.set()
+    if re.fullmatch(rx, email):
+        await state.update_data(email=email)
+        await message.answer("Enter password for registration(example: abcd123456  "
+                             "\n- password must be included alphabet and numbers at least 8 symbols):")
+        await Auth.password.set()
+    else:
+        await message.answer("Please re-enter")
+        await Auth.email.set()
 
 
 @dp.message_handler(state=Auth.password)
 async def get_task_name(message: types.Message, state: FSMContext):
     password1 = message.text
     if re.fullmatch(r'[A-Za-z0-9@#$%^&+=]{8,}', password1):
-        result = await state.update_data(password=password1)
+        await state.update_data(password=password1)
         user_info['password'] = password1
         await message.answer("All is done")
     else:
@@ -59,14 +64,13 @@ async def get_task_name(message: types.Message, state: FSMContext):
         await Auth.password.set()
 
     await state.finish()
-    await register(message)
 
 
-async def register(message: types.Message):
+async def register():
+    url_reg = 'http://127.0.0.1:8000/register/'
     async with aiohttp.request(method='POST', url=url_reg, data=user_info) as res:
-        await message.answer(f'{res.text()}')
+        return res.json()
 
-# request(method='POST', url=url_reg, data=user_info) as res
 
 @dp.message_handler(commands="listoftask")
 async def ListOffTask(message: types.Message):
@@ -126,14 +130,12 @@ async def cb_data(query: types.CallbackQuery, callback_data: dict):
     if action == 'detail':
         result = await set_data()
         for x in result:
-            if query.message.text.splitlines()[1][9:] == str(x['id']):
+            if query.message.text.splitlines()[0][11:] == x['task_name']:
                 task_name = x['task_name']
                 description = x['description']
                 start = x['starting_time']
                 deadline = x['deadline']
-                id1 = x['id']
                 await query.message.edit_text(text=f'Task name: {task_name}'
-                                                   f'\nTask ID: {id1}'
                                                    f'\nDescription: {description}'
                                                    f'\nStarted_at: {start}'
                                                    f'\nDeadline: {deadline}',
@@ -147,14 +149,12 @@ async def cb_data1(query: types.CallbackQuery, callback_data: dict):
     if action == 'detail1':
         result = await set_data()
         for x in result:
-            if query.message.text.splitlines()[1][9:] == str(x['id']):
+            if query.message.text.splitlines()[0][11:] == x['task_name']:
                 task_name = x['task_name']
                 description = x['description']
                 start = x['starting_time']
                 deadline = x['deadline']
-                id1 = x['id']
                 await query.message.edit_text(text=f'Task name: {task_name}'
-                                                   f'\nTask ID: {id1}'
                                                    f'\nDescription: {description}'
                                                    f'\nStarted_at: {start}'
                                                    f'\nDeadline: {deadline}',
@@ -167,14 +167,12 @@ async def cb_data2(query: types.CallbackQuery, callback_data: dict):
     if action == 'detail2':
         result = await set_data()
         for x in result:
-            if query.message.text.splitlines()[1][9:] == str(x['id']):
+            if query.message.text.splitlines()[0][11:] == x['task_name']:
                 task_name = x['task_name']
                 description = x['description']
                 start = x['starting_time']
                 deadline = x['deadline']
-                id1 = x['id']
                 await query.message.edit_text(text=f'Task name: {task_name}'
-                                                   f'\nTask ID: {id1}'
                                                    f'\nDescription: {description}'
                                                    f'\nStarted_at: {start}'
                                                    f'\nDeadline: {deadline}',
@@ -187,13 +185,18 @@ async def cb_edit(query: types.CallbackQuery, callback_data: dict):
     if action == 'delete':
         result = await set_data()
         for x in result:
-            if query.message.text.splitlines()[1][9:] == str(x['id']):
+            if query.message.text.splitlines()[0][11:] == x['task_name']:
                 pk = x['id']
                 url_detail = 'http://127.0.0.1:8000/tasks/' + str(pk) + '/'
                 async with aiohttp.ClientSession() as session:
-                    async with await session.delete(url_detail, auth=aiohttp.BasicAuth(user, password)):
+                    async with await session.delete(url_detail, auth=aiohttp.BasicAuth(user_data1)):
                         await query.message.edit_text(f'Accepted deleted')
     elif action == 'edit':
+        global id1
+        result = await set_data()
+        for x in result:
+            if query.message.text.splitlines()[0][11:] == x['task_name']:
+                id1 = x['id']
         await query.message.edit_reply_markup(get_edit_buttons())
 
 
@@ -203,23 +206,23 @@ async def cb_comp(query: types.CallbackQuery, callback_data: dict):
     if action == 'delete1':
         result = await set_data()
         for x in result:
-            if query.message.text.splitlines()[1][9:] == str(x['id']):
+            if query.message.text.splitlines()[0][11:] == x['task_name']:
                 pk = x['id']
                 url_detail = 'http://127.0.0.1:8000/tasks/' + str(pk) + '/'
                 async with aiohttp.ClientSession() as session:
-                    async with await session.delete(url_detail, auth=aiohttp.BasicAuth(user, password)):
+                    async with await session.delete(url_detail, auth=aiohttp.BasicAuth(user_data1)):
                         await query.message.edit_text(f'Accepted deleted')
     elif action == 'edit1':
         await query.message.edit_reply_markup(get_edit_buttons())
     elif action == "completed":
         result = await set_data()
         for x in result:
-            if query.message.text.splitlines()[1][9:] == str(x['id']):
+            if query.message.text.splitlines()[0][11:] == x['task_name']:
                 pk = x['id']
                 x["completed"] = True
                 url_detail = 'http://127.0.0.1:8000/tasks/' + str(pk) + '/'
                 async with aiohttp.ClientSession() as session:
-                    async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password), data=x):
+                    async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user_data['user'], user_data['password']), data=x):
                         await query.message.edit_text(f'Accepted completed ✅✅✅')
 
 
@@ -253,7 +256,7 @@ async def get_task_name(message: types.Message, state: FSMContext):
             x["task_name"] = task_name
             url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
             async with aiohttp.ClientSession() as session:
-                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password), data=x):
+                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user_data['user'], user_data['password']), data=x):
                     await message.answer(f'Accepted new task name {x["task_name"]}')
     await state.finish()
 
@@ -268,7 +271,7 @@ async def get_description(message: types.Message, state: FSMContext):
             x["description"] = description
             url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
             async with aiohttp.ClientSession() as session:
-                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password), data=x):
+                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user_data['user'], user_data['password']), data=x):
                     await message.answer(f'Accepted new description {x["description"]}')
     await state.finish()
 
@@ -286,7 +289,7 @@ async def get_starting_time(message: types.Message, state: FSMContext):
             x["starting_time"] = starting_time
             url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
             async with aiohttp.ClientSession() as session:
-                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password), data=x):
+                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user_data['user'], user_data['password']), data=x):
                     await message.answer(f'Task name: {x["task_name"]}'
                                          f'\nAccepted new start time {x["starting_time"]}')
     await state.finish()
@@ -305,7 +308,7 @@ async def get_deadline(message: types.Message, state: FSMContext):
             x["deadline"] = deadline
             url_detail = 'http://127.0.0.1:8000/tasks/' + str(id1) + '/'
             async with aiohttp.ClientSession() as session:
-                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(user, password), data=x):
+                async with await session.patch(url_detail, auth=aiohttp.BasicAuth(get_info), data=x):
                     await message.answer(f'Task name: {x["task_name"]}'
                                          f'\nAccepted new deadline time {x["deadline"]}')
     await state.finish()

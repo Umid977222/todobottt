@@ -1,5 +1,4 @@
 from aiogram import types
-from .control import dp
 
 
 def get_keyboard():

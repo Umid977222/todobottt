@@ -45,8 +45,7 @@ def get_edit_buttons():
     keyboard.add(types.InlineKeyboardButton(text='Task name', callback_data=cb.new('task_name')),
                  types.InlineKeyboardButton(text='Description', callback_data=cb.new('description')),
                  types.InlineKeyboardButton(text='starting_time', callback_data=cb.new('starting_time')),
-                 types.InlineKeyboardButton(text='Deadline', callback_data=cb.new('deadline')),
-                 types.InlineKeyboardButton(text='Go back', callback_data=cb.new('back'))
+                 types.InlineKeyboardButton(text='Deadline', callback_data=cb.new('deadline'))
                  )
     return keyboard
 

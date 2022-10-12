@@ -25,7 +25,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     """get_all  and post functions"""
     queryset = Task.objects.all().order_by('-created_at')
     serializer_class = TaskSerializer
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     @action(detail=False)
     def completed(self, request):
